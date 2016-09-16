@@ -53,10 +53,32 @@ module.exports = function(app) {
 		})
 	})
 
+
+	/* Add OneSignal Token to user */
+	app.put('/user/push', isAuthenticated, function(req, res) {
+
+		User.findById(req.user._doc._id).exec(function(err, user) {
+			if (err) {
+				res.status(500).json(err);
+			}
+
+			user.onesignalId = req.body.onesignalId;
+
+			user.save(function(err, userSaved) {
+				if (err) {
+					res.json(err);
+				}
+
+				res.json(userSaved);
+			});
+
+		})
+	})
+
 	/* Add friend        TODO: Unique ID into friends array  */ 
 	app.post('/user/friends', isAuthenticated, function(req, res) {
 
-		User.findById(req.user._doc._id).exec(function(err, user) {
+		User.findById(req.user._doc._id).then(function(err, user) {
 			if (err) {
 				res.status(500).json(err);
 			}
@@ -80,7 +102,7 @@ module.exports = function(app) {
 	/* Delete friend    */ 
 	app.delete('/user/friends', isAuthenticated, function(req, res) {
 
-		User.findById(req.user._doc._id).exec(function(err, user) {
+		User.findById(req.user._doc._id).then(function(err, user) {
 			if (err) {
 				res.status(500).json(err);
 			}
